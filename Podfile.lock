@@ -1,0 +1,79 @@
+PODS:
+  - AWAREFramework (1.14.1):
+    - AWAREFramework/Core (= 1.14.1)
+  - AWAREFramework/Bluetooth (1.14.1):
+    - AWAREFramework/Core
+  - AWAREFramework/Calendar (1.14.1):
+    - AWAREFramework/Core
+  - AWAREFramework/Contact (1.14.1):
+    - AWAREFramework/Core
+  - AWAREFramework/Core (1.14.1):
+    - LibTorch-Lite (~> 1.10.0)
+    - macros_blocks (~> 0.0.4)
+    - TPCircularBuffer (~> 1.6)
+    - TrueTime (~> 5.0.3)
+  - AWAREFramework/HealthKit (1.14.1):
+    - AWAREFramework/Core
+  - AWAREFramework/Microphone (1.14.1):
+    - AWAREFramework/Core
+  - AWAREFramework/MotionActivity (1.14.1):
+    - AWAREFramework/Core
+  - Charts (4.1.0):
+    - Charts/Core (= 4.1.0)
+  - Charts/Core (4.1.0):
+    - SwiftAlgorithms (~> 1.0)
+  - DynamicColor (5.0.1)
+  - LibTorch-Lite (1.10.0):
+    - LibTorch-Lite/Core (= 1.10.0)
+  - LibTorch-Lite/Core (1.10.0):
+    - LibTorch-Lite/Torch
+  - LibTorch-Lite/Torch (1.10.0)
+  - macros_blocks (0.0.4):
+    - macros_blocks/core (= 0.0.4)
+  - macros_blocks/core (0.0.4)
+  - Onboard (2.3.3)
+  - SwiftAlgorithms (1.0.0)
+  - TPCircularBuffer (1.6.1)
+  - TrueTime (5.0.3)
+
+DEPENDENCIES:
+  - AWAREFramework (from `../AWAREFramework`)
+  - AWAREFramework/Bluetooth (from `../AWAREFramework`)
+  - AWAREFramework/Calendar (from `../AWAREFramework`)
+  - AWAREFramework/Contact (from `../AWAREFramework`)
+  - AWAREFramework/HealthKit (from `../AWAREFramework`)
+  - AWAREFramework/Microphone (from `../AWAREFramework`)
+  - AWAREFramework/MotionActivity (from `../AWAREFramework`)
+  - Charts (~> 4.1.0)
+  - DynamicColor (~> 5.0.1)
+  - Onboard (~> 2.3.1)
+
+SPEC REPOS:
+  trunk:
+    - Charts
+    - DynamicColor
+    - LibTorch-Lite
+    - macros_blocks
+    - Onboard
+    - SwiftAlgorithms
+    - TPCircularBuffer
+    - TrueTime
+
+EXTERNAL SOURCES:
+  AWAREFramework:
+    :path: "../AWAREFramework"
+
+SPEC CHECKSUMS:
+  AWAREFramework: c4ac4efdc881c823688a4824217e0bff77d97ce3
+  Charts: 354f86803d11d9c35de280587fef50d1af063978
+  DynamicColor: d049834ef86d8ecf150b0ca1ebe54ee733a0ec22
+  LibTorch-Lite: 1e06028172ee5aecc12a01da6e6f3fe0bc3541c6
+  macros_blocks: cf3ff5810b798f462def9f1e3999817dc45cf2df
+  Onboard: 4d6e943e20bdd6bc229df967a347dd7514bc2a6f
+  SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
+  TPCircularBuffer: c13243556527551c4d320709c7b14a6d20cdc30a
+  TrueTime: b49551ffafb28a9dee04e51b226f42a416010842
+
+PODFILE CHECKSUM: c5266f82d61d312ba37ba7cfdc6b883ee183d284
+
+COCOAPODS: 1.11.3
