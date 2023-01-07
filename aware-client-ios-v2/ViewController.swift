@@ -668,7 +668,7 @@ extension ViewController {
                 var complete = true
                 for sensor in self.sensors {
                     if manager.isExist(sensor.identifier){
-                        // print(sensor.sensorName, sensor.syncProgress)
+                        print("upload completion check \(sensor.identifier), \(sensor.syncProgress)");
                         if sensor.syncProgress < 1 {
                             complete = false
                             break
@@ -677,6 +677,7 @@ extension ViewController {
                 }
                 
                 if complete {
+                    print("upload complete")
                     let alert = UIAlertController(title: NSLocalizedString("setting_view_upload_comp_title", comment: ""),
                                                   message: nil,
                                                   preferredStyle: .alert)
