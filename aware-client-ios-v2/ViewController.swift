@@ -14,7 +14,6 @@ class ViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     
     let sensorManager = AWARESensorManager.shared()
-    //TODO: let noiseSensor = AmbientNoise()
     
     var refreshTimer:Timer?
     var refreshInterval = 0.5
@@ -45,7 +44,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         tableView.delegate = self
         tableView.dataSource = self
-//       TODO: noiseSensor.delegate = self
+//       noiseSensor.delegate = self
 //        sensorManager.add(noiseSensor)
     }
     
@@ -124,10 +123,27 @@ class ViewController: UIViewController {
         let esmManager = ESMScheduleManager.shared()
         let schedules = esmManager.getValidSchedules()
         if(schedules.count > 0){
+            //TODO: comment out or no?
             if !IOSESM.hasESMAppearedInThisSession(){
                 self.tabBarController?.selectedIndex = 0
             }
+            //new code from https://github.com/alisonqiu/AWAREFramework-iOS/blob/5c0d6dc50adbb8f036f37c08f4801ff2593f1615/Example/AWARE-DynamicESM/ViewController.swift#L40
+            let esmViewController = ESMScrollViewController()
+
+            // set an original ESM generation handler
+            esmViewController.setOriginalESMViewGenerationHandler { (esm, bottomESMViewPositionY, viewController) -> BaseESMView? in
+                return nil
+            }
+
+            // set a answer completion handler
+            esmViewController.setAllESMCompletionHandler {
+                // delete the schedule when the answer is completed
+                ESMScheduleManager.shared().deleteSchedule(withId: "likert")
+            }
+
+            self.present(esmViewController, animated: true){}
         }
+       
     }
     
 //    func login(){
@@ -230,7 +246,7 @@ class ViewController: UIViewController {
                          details: "",
                          identifier: TableRowIdentifier.advancedSettings.rawValue)]
     }
-    //TODO: single out ambient noise
+
     lazy var sensors: [TableRowContent] = {
         let bundleUrl = Bundle.main.url(forResource: "AWAREFramework", withExtension: "bundle")
         if let url = bundleUrl {
@@ -787,7 +803,6 @@ class TableRowContent {
         self.details = details
         self.identifier = identifier
         self.icon = icon
-        //TODO: if type == ambientNoise,
         if self.identifier == SENSOR_AMBIENT_NOISE {
             self.delegate = UIApplication.shared.keyWindow!.rootViewController
         }

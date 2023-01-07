@@ -46,7 +46,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             if let ambientNoise = manager.getSensor(SENSOR_AMBIENT_NOISE) as? AmbientNoise {
                 ambientNoise.delegate = self
-            }
+  
+                ambientNoise.setSensorEventHandler { (sensor, data) in
+                    if let data = data {
+                        let prob = data["uncertainty"] as! Double
+                                if prob < 0.4 {
+                                        print("prob < 0.4")
+                                        self.setSurvey()
+                                        self.setNotification()
+                                    } else {
+                                        print("prob>= 0.4")
+                                    }
+                                }
+//                        ["timestamp": 1673059510966, "raw": , "double_frequency": 0, "is_silent": 0, "double_decibels": 0, "double_silent_threshold": 50, "double_rms": 0, "device_id": 9314fdc4-e3f3-49c9-b95c-9b85b1563124, "dnn_res":  UMBE UCHA W ]
+                
+                       }
+                }
+                //TODO: ambientNoise.setSensorEventHandler { (sensor, data) in
+                //https://github.com/alisonqiu/AWAREFramework-iOS/blob/master/Example/AWARE-DynamicESM/AppDelegate.swift
+            
             core.activate()
             manager.add(AWAREEventLogger.shared())
             manager.add(AWAREStatusMonitor.shared())
@@ -75,6 +93,66 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         return true
     }
+    
+    
+    func setSurvey(){
+           // generate a survey
+           //let pam = ESMItem.init(asPAMESMWithTrigger: "pam")
+        //let radio = ESMItem.init(asRadioESMWithTrigger: "radio", radioItems: ["0","1","2","3"])
+//        radio.setTitle("How many concurrent speakers are there?")
+//        radio.setInstructions("Please select a number.")
+        
+        let likert = ESMItem.init(asLikertScaleESMWithTrigger: "likert",
+                                  likertMax: 5,
+                                  likertMinLabel: "",
+                                  likertMaxLabel: "",
+                                  likertStep: 1)
+        likert.setTitle("How many concurrent speakers?")
+        likert.setInstructions("Please select an item.")
+
+           let expireSec = TimeInterval(60*30)
+           
+           let schedule = ESMSchedule()
+           schedule.startDate  = Date()
+           schedule.endDate    = Date().addingTimeInterval(expireSec) // This ESM valid 30 min
+           schedule.scheduleId = "likert"
+           schedule.addESM(likert)
+           
+           let manager = ESMScheduleManager.shared()
+           if manager.getValidSchedules().count == 0 {
+               manager.add(schedule)
+           }
+       }
+       
+       func setNotification(){
+           // send notification
+           let content = UNMutableNotificationContent()
+           content.title = "How many concurrent speakers are there?"
+           content.body  = "Tap to answer the question."
+           content.badge = UIApplication.shared.applicationIconBadgeNumber + 1 as NSNumber
+           content.sound = .default
+           
+           let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
+           
+           let notifId = UUID().uuidString
+           let request = UNNotificationRequest(identifier: notifId,
+                                               content: content,
+                                               trigger: trigger)
+           
+           UNUserNotificationCenter.current().add(request, withCompletionHandler: { (error) in
+               print("ERROR: NUserNotificationCenter.current().add] \(error) ")
+           });
+           
+           // Remove the delivered notification if the time is over the expiration time
+           //TODO: change expiration time 60.0 * 30.0
+           Timer.scheduledTimer(withTimeInterval: 600.0 * 30.0, repeats: false, block: { (timer) in
+               UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [notifId])
+               let iconNum = UIApplication.shared.applicationIconBadgeNumber
+               if iconNum > 0 {
+                   UIApplication.shared.applicationIconBadgeNumber =  iconNum - 1
+               }
+           })
+       }
 
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -268,8 +346,8 @@ extension AppDelegate : UNUserNotificationCenterDelegate,AVAudioRecorderDelegate
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         
     }
-    
-    func audioDidSave(_ audio_url: URL!, completion callback: ((String?) -> Void)!) {
+
+    func audioDidSave(_ audio_url: URL!, completion callback: ((NSNumber?,String?) -> Void)!) {
                 let file = try! AVAudioFile(forReading: audio_url)
         
                 if (file.length == 0){
@@ -299,7 +377,10 @@ extension AppDelegate : UNUserNotificationCenterDelegate,AVAudioRecorderDelegate
                             DispatchQueue.main.async {
                                 //self.tvResult.text = result
                                 //self.btnStart.setTitle("Start", for: .normal)
-                                callback(result);
+                                let rand = Double.random(in: 0...1)
+                                let prob = NSNumber(value: rand)
+                                //TODO: callback(result, prob);
+                                callback(prob, result);
                                 
                             }
                         }
