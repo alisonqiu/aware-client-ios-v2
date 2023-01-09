@@ -9,7 +9,7 @@
 import UIKit
 import AWAREFramework
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, AWAREAmbientNoiseDelegate {
 
     @IBOutlet weak var tableView: UITableView!
     
@@ -20,6 +20,8 @@ class ViewController: UIViewController {
     
     var googleLoginRequestObserver:NSObjectProtocol?
     var contactUpdateRequestObserver:NSObjectProtocol?
+    var lockScreenObserver:NSObjectProtocol?
+    var unlockScreenObserver:NSObjectProtocol?
     
     var selectedRowContent:TableRowContent?
     
@@ -48,6 +50,24 @@ class ViewController: UIViewController {
 //        sensorManager.add(noiseSensor)
     }
     
+    @objc func printScreenOff(notification: Notification) {
+        print("ACTION_AWARE_SCREEN_OFF \(notification)")
+    }
+    
+    @objc func printScreenOn(notification: Notification) {
+        print("ACTION_AWARE_SCREEN_ON \(notification)")
+    }
+    
+    @objc func printScreenUnlocked(notification: Notification) {
+        print("ACTION_AWARE_SCREEN_UNLOCKED \(notification)")
+    }
+    
+    @objc func printScreenLocked(notification: Notification) {
+        print("ACTION_AWARE_SCREEN_LOCKED \(notification)")
+    }
+
+    
+
     override func viewDidAppear(_ animated: Bool) {
         
         AWARECore.shared().checkCompliance(with: self, showDetail: true)
@@ -71,6 +91,21 @@ class ViewController: UIViewController {
 //                                                self.login()
 //        }
 //        self.login()
+        
+
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(printScreenOff(notification:)), name: Notification.Name(ACTION_AWARE_SCREEN_OFF), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(printScreenOn(notification:)), name: Notification.Name(ACTION_AWARE_SCREEN_ON), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(printScreenLocked(notification:)), name: Notification.Name(ACTION_AWARE_SCREEN_LOCKED), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(printScreenLocked(notification:)), name: Notification.Name(ACTION_AWARE_SCREEN_UNLOCKED), object: nil)
+        
+
+
+        
+
         
         contactUpdateRequestObserver = NotificationCenter.default.addObserver(forName: Notification.Name(ACTION_AWARE_CONTACT_REQUEST),
                                                object: nil, queue: .main) { (notification) in
@@ -128,20 +163,20 @@ class ViewController: UIViewController {
                 self.tabBarController?.selectedIndex = 0
             }
             //new code from https://github.com/alisonqiu/AWAREFramework-iOS/blob/5c0d6dc50adbb8f036f37c08f4801ff2593f1615/Example/AWARE-DynamicESM/ViewController.swift#L40
-            let esmViewController = ESMScrollViewController()
-
-            // set an original ESM generation handler
-            esmViewController.setOriginalESMViewGenerationHandler { (esm, bottomESMViewPositionY, viewController) -> BaseESMView? in
-                return nil
-            }
-
-            // set a answer completion handler
-            esmViewController.setAllESMCompletionHandler {
-                // delete the schedule when the answer is completed
-                ESMScheduleManager.shared().deleteSchedule(withId: "likert")
-            }
-
-            self.present(esmViewController, animated: true){}
+//            let esmViewController = ESMScrollViewController()
+//
+//            // set an original ESM generation handler
+//            esmViewController.setOriginalESMViewGenerationHandler { (esm, bottomESMViewPositionY, viewController) -> BaseESMView? in
+//                return nil
+//            }
+//
+//            // set a answer completion handler
+//            esmViewController.setAllESMCompletionHandler {
+//                // delete the schedule when the answer is completed
+//                ESMScheduleManager.shared().deleteSchedule(withId: "likert")
+//            }
+//
+//            self.present(esmViewController, animated: true){}
         }
        
     }
@@ -188,14 +223,25 @@ class ViewController: UIViewController {
     @IBAction func didPushRefreshButton(_ sender: UIBarButtonItem) {
         let study = AWAREStudy.shared()
         let manager = AWARESensorManager.shared()
+        //let screen = Screen()
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+
         
         manager.stopAndRemoveAllSensors()
+
+        //manager.add(screen)
         if study.getURL() == "" {
             manager.addSensors(with: study)
             manager.add(AWAREEventLogger.shared())
             manager.add(AWAREStatusMonitor.shared())
             manager.createDBTablesOnAwareServer()
             manager.startAllSensors()
+            
+            if let ambientNoise = manager.getSensor(SENSOR_AMBIENT_NOISE) as? AmbientNoise {
+                ambientNoise.delegate = appDelegate
+
+                }
+
             let alert = UIAlertController(title: NSLocalizedString("setting_view_config_refresh_title", comment: ""),
                                           message: nil, preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: { (action) in
@@ -211,11 +257,15 @@ class ViewController: UIViewController {
                         manager.add(AWAREStatusMonitor.shared())
                         manager.createDBTablesOnAwareServer()
                         manager.startAllSensors()
+                        if let ambientNoise = manager.getSensor(SENSOR_AMBIENT_NOISE) as? AmbientNoise {
+                            ambientNoise.delegate = appDelegate
+                            }
                         self.showReloadCompletionAlert()
                     }
                 }
             }
         }
+
         
         for sensor in self.sensors {
             sensor.syncProgress = 0

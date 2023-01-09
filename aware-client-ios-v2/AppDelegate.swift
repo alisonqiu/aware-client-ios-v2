@@ -37,6 +37,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let core    = AWARECore.shared()
         let manager = AWARESensorManager.shared()
         let study   = AWAREStudy.shared()
+        let screen = Screen()
+    
+    
+        manager.add(screen)
 
         manager.addSensors(with: study)
         if manager.getAllSensors().count > 0 {
@@ -44,23 +48,59 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if let fitbit = manager.getSensor(SENSOR_PLUGIN_FITBIT) as? Fitbit {
                 fitbit.viewController = window?.rootViewController
             }
+            //TODO: check screen on
+
+            if let screen = manager.getSensor(SENSOR_SCREEN) as? Screen {
+                
+                
+//                screen.setSensorEventHandler { (sensor, data) in
+//                    if let data = data {
+//                        print("screen state :\(data)")
+//                        let screenOn = data["screen_status"] as! Int != 0
+//                        print("screenOn is \(screenOn)")
+//                       if screenOn{
+//                           if let ambientNoise = manager.getSensor(SENSOR_AMBIENT_NOISE) as? AmbientNoise {
+//                               ambientNoise.delegate = self
+//
+//                               ambientNoise.setSensorEventHandler { (sensor, data) in
+//                                   if let data = data {
+//                                       let prob = data["uncertainty"] as! Double
+//                                               if prob < 0.4 {
+//                                                       print("prob < 0.4")
+//                                                       self.setSurvey()
+//                                                       self.setNotification()
+//                                                   } else {
+//                                                       print("prob>= 0.4")
+//                                                   }
+//                                               }
+//               //                        ["timestamp": 1673059510966, "raw": , "double_frequency": 0, "is_silent": 0, "double_decibels": 0, "double_silent_threshold": 50, "double_rms": 0, "device_id": 9314fdc4-e3f3-49c9-b95c-9b85b1563124, "dnn_res":  UMBE UCHA W ]
+//
+//                                      }
+//                               }
+//                       }
+//                        //["timestamp": 1673138360932, "label": , "device_id": 9314fdc4-e3f3-49c9-b95c-9b85b1563124, "screen_status": 2]
+//                    }
+//
+//                }
+            }
+            
             if let ambientNoise = manager.getSensor(SENSOR_AMBIENT_NOISE) as? AmbientNoise {
                 ambientNoise.delegate = self
-  
-                ambientNoise.setSensorEventHandler { (sensor, data) in
-                    if let data = data {
-                        let prob = data["uncertainty"] as! Double
-                                if prob < 0.4 {
-                                        print("prob < 0.4")
-                                        self.setSurvey()
-                                        self.setNotification()
-                                    } else {
-                                        print("prob>= 0.4")
-                                    }
-                                }
-//                        ["timestamp": 1673059510966, "raw": , "double_frequency": 0, "is_silent": 0, "double_decibels": 0, "double_silent_threshold": 50, "double_rms": 0, "device_id": 9314fdc4-e3f3-49c9-b95c-9b85b1563124, "dnn_res":  UMBE UCHA W ]
-                
-                       }
+
+//                ambientNoise.setSensorEventHandler { (sensor, data) in
+//                    if let data = data {
+//                        let prob = data["uncertainty"] as! Double
+//                        print("Screennnn:\(screen.getLatestValue())");
+//                                if prob < 0.4 {
+//                                        print("prob < 0.4")
+//                                        self.setSurvey()
+//                                        self.setNotification()
+//                                    } else {
+//                                        print("prob>= 0.4")
+//                                    }
+//                                }
+//
+//                       }
                 }
                 //TODO: ambientNoise.setSensorEventHandler { (sensor, data) in
                 //https://github.com/alisonqiu/AWAREFramework-iOS/blob/master/Example/AWARE-DynamicESM/AppDelegate.swift
@@ -140,12 +180,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                                trigger: trigger)
            
            UNUserNotificationCenter.current().add(request, withCompletionHandler: { (error) in
-               print("ERROR: NUserNotificationCenter.current().add] \(error) ")
+
            });
            
            // Remove the delivered notification if the time is over the expiration time
-           //TODO: change expiration time 60.0 * 30.0
-           Timer.scheduledTimer(withTimeInterval: 600.0 * 30.0, repeats: false, block: { (timer) in
+           Timer.scheduledTimer(withTimeInterval: 60.0 * 30.0, repeats: false, block: { (timer) in
                UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [notifId])
                let iconNum = UIApplication.shared.applicationIconBadgeNumber
                if iconNum > 0 {
@@ -165,21 +204,65 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
         IOSESM.setESMAppearedState(false)
+        //TODO: check lock screen here
+        print("applicationDidEnterBackground")
         UIApplication.shared.applicationIconBadgeNumber = 0
         AWAREEventLogger.shared().logEvent(["class":"AppDelegate",
                                             "event":"applicationDidEnterBackground:"]);
+        let manager = AWARESensorManager.shared()
+        if let ambientNoise = manager.getSensor(SENSOR_AMBIENT_NOISE) as? AmbientNoise {
+            ambientNoise.setSensorEventHandler { (sensor, data) in
+                    print("don't send surveys")
+
+                   }
+            }
+
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+        print("applicationWillEnterForeground")
         AWAREEventLogger.shared().logEvent(["class":"AppDelegate",
                                             "event":"applicationWillEnterForeground:"]);
+        let manager = AWARESensorManager.shared()
+        if let ambientNoise = manager.getSensor(SENSOR_AMBIENT_NOISE) as? AmbientNoise {
+            ambientNoise.setSensorEventHandler { (sensor, data) in
+                if let data = data {
+                    let prob = data["uncertainty"] as! Double
+                            if prob < 0.4 {
+                                    print("prob < 0.4")
+                                    self.setSurvey()
+                                self.setNotification()
+                                } else {
+                                    print("prob>= 0.4")
+                                }
+                            }
+
+                   }
+            }
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
         AWAREEventLogger.shared().logEvent(["class":"AppDelegate",
                                             "event":"applicationDidBecomeActive:"]);
+        print("applicationDidBecomeActive")
+        let manager = AWARESensorManager.shared()
+        if let ambientNoise = manager.getSensor(SENSOR_AMBIENT_NOISE) as? AmbientNoise {
+            ambientNoise.setSensorEventHandler { (sensor, data) in
+                if let data = data {
+                    let prob = data["uncertainty"] as! Double
+                            if prob < 0.4 {
+                                    print("prob < 0.4")
+                                    self.setSurvey()
+                                self.setNotification()
+                                } else {
+                                    print("prob>= 0.4")
+                                }
+                            }
+
+                   }
+            }
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
@@ -304,7 +387,7 @@ extension AppDelegate : UNUserNotificationCenterDelegate,AVAudioRecorderDelegate
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
-        
+        print("received notification: \(response)")
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter,
@@ -322,6 +405,7 @@ extension AppDelegate : UNUserNotificationCenterDelegate,AVAudioRecorderDelegate
                      fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         if let userInfo = userInfo as? [String:Any]{
             // SilentPushManager().executeOperations(userInfo)
+            print("notification: \(userInfo)")
             PushNotificationResponder().response(withPayload: userInfo)
         }
         
