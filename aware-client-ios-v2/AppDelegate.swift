@@ -204,7 +204,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
         IOSESM.setESMAppearedState(false)
-        //TODO: check lock screen here
         print("applicationDidEnterBackground")
         UIApplication.shared.applicationIconBadgeNumber = 0
         AWAREEventLogger.shared().logEvent(["class":"AppDelegate",
@@ -251,14 +250,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if let ambientNoise = manager.getSensor(SENSOR_AMBIENT_NOISE) as? AmbientNoise {
             ambientNoise.setSensorEventHandler { (sensor, data) in
                 if let data = data {
-                    let prob = data["uncertainty"] as! Double
-                            if prob < 0.4 {
-                                    print("prob < 0.4")
-                                    self.setSurvey()
-                                self.setNotification()
-                                } else {
-                                    print("prob>= 0.4")
-                                }
+//                    let prob = data["uncertainty"] as! Double
+//                            if prob < 0.4 {
+//                                    print("prob < 0.4")
+//                                    self.setSurvey()
+//                                self.setNotification()
+//                                } else {
+//                                    print("prob>= 0.4")
+//                                }
+                    print(data)
                             }
 
                    }
@@ -431,8 +431,8 @@ extension AppDelegate : UNUserNotificationCenterDelegate,AVAudioRecorderDelegate
         
     }
 
-    func audioDidSave(_ audio_url: URL!, completion callback: ((String?) -> Void)!) {
-                let file = try! AVAudioFile(forReading: audio_url)
+    func audioDidSave(_ audio_url: URL?, completion callback: ((String?) -> Void)!) {
+        let file = try! AVAudioFile(forReading: audio_url!)
         
                 if (file.length == 0){
                     return;
