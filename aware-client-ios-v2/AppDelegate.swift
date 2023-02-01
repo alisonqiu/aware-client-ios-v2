@@ -431,7 +431,7 @@ extension AppDelegate : UNUserNotificationCenterDelegate,AVAudioRecorderDelegate
         
     }
 
-    func audioDidSave(_ audio_url: URL!, completion callback: ((NSNumber?,String?) -> Void)!) {
+    func audioDidSave(_ audio_url: URL!, completion callback: ((String?) -> Void)!) {
                 let file = try! AVAudioFile(forReading: audio_url)
         
                 if (file.length == 0){
@@ -464,7 +464,7 @@ extension AppDelegate : UNUserNotificationCenterDelegate,AVAudioRecorderDelegate
                                 let rand = Double.random(in: 0...1)
                                 let prob = NSNumber(value: rand)
                                 //TODO: callback(result, prob);
-                                callback(prob, result);
+                                callback(result);
                                 
                             }
                         }
