@@ -48,41 +48,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if let fitbit = manager.getSensor(SENSOR_PLUGIN_FITBIT) as? Fitbit {
                 fitbit.viewController = window?.rootViewController
             }
-            //TODO: check screen on
-
-            if let screen = manager.getSensor(SENSOR_SCREEN) as? Screen {
-                
-                
-//                screen.setSensorEventHandler { (sensor, data) in
-//                    if let data = data {
-//                        print("screen state :\(data)")
-//                        let screenOn = data["screen_status"] as! Int != 0
-//                        print("screenOn is \(screenOn)")
-//                       if screenOn{
-//                           if let ambientNoise = manager.getSensor(SENSOR_AMBIENT_NOISE) as? AmbientNoise {
-//                               ambientNoise.delegate = self
-//
-//                               ambientNoise.setSensorEventHandler { (sensor, data) in
-//                                   if let data = data {
-//                                       let prob = data["uncertainty"] as! Double
-//                                               if prob < 0.4 {
-//                                                       print("prob < 0.4")
-//                                                       self.setSurvey()
-//                                                       self.setNotification()
-//                                                   } else {
-//                                                       print("prob>= 0.4")
-//                                                   }
-//                                               }
-//               //                        ["timestamp": 1673059510966, "raw": , "double_frequency": 0, "is_silent": 0, "double_decibels": 0, "double_silent_threshold": 50, "double_rms": 0, "device_id": 9314fdc4-e3f3-49c9-b95c-9b85b1563124, "dnn_res":  UMBE UCHA W ]
-//
-//                                      }
-//                               }
-//                       }
-//                        //["timestamp": 1673138360932, "label": , "device_id": 9314fdc4-e3f3-49c9-b95c-9b85b1563124, "screen_status": 2]
-//                    }
-//
-//                }
-            }
+        
             
             if let ambientNoise = manager.getSensor(SENSOR_AMBIENT_NOISE) as? AmbientNoise {
                 ambientNoise.delegate = self
@@ -102,8 +68,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //
 //                       }
                 }
-                //TODO: ambientNoise.setSensorEventHandler { (sensor, data) in
-                //https://github.com/alisonqiu/AWAREFramework-iOS/blob/master/Example/AWARE-DynamicESM/AppDelegate.swift
+     
             
             core.activate()
             manager.add(AWAREEventLogger.shared())
