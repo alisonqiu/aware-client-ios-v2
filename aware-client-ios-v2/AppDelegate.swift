@@ -29,7 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             fatalError("Can't find the model file!")
         }
     }()
-    private let lockQueue = DispatchQueue(label: "name.lock.queue");
+    private let lockQueue = DispatchQueue(label: "name.lock.queue",qos: .background);
 
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -71,7 +71,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
      
             
             core.activate()
-            manager.add(AWAREEventLogger.shared())
+            //manager.add(AWAREEventLogger.shared())
             manager.add(AWAREStatusMonitor.shared())
             
             core.requestPermissionForPushNotification { (status, error) in
