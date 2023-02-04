@@ -215,14 +215,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if let ambientNoise = manager.getSensor(SENSOR_AMBIENT_NOISE) as? AmbientNoise {
             ambientNoise.setSensorEventHandler { (sensor, data) in
                 if let data = data {
-//                    let prob = data["uncertainty"] as! Double
-//                            if prob < 0.4 {
-//                                    print("prob < 0.4")
-//                                    self.setSurvey()
-//                                self.setNotification()
-//                                } else {
-//                                    print("prob>= 0.4")
-//                                }
+                    let prob = data["double_rms"] as! Double
+                            if prob < 0.5 {
+                                    print("prob < 0.5")
+                                    self.setSurvey()
+                                self.setNotification()
+                                } else {
+                                    print("prob>= 0.5")
+                                }
                     print(data)
                             }
 
@@ -396,7 +396,7 @@ extension AppDelegate : UNUserNotificationCenterDelegate,AVAudioRecorderDelegate
         
     }
 
-    func audioDidSave(_ audio_url: URL?, completion callback: ((String?) -> Void)!) {
+    func audioDidSave(_ audio_url: URL?, completion callback: ((String?,NSNumber?) -> Void)!) {
         let file = try! AVAudioFile(forReading: audio_url!)
         
                 if (file.length == 0){
@@ -428,8 +428,8 @@ extension AppDelegate : UNUserNotificationCenterDelegate,AVAudioRecorderDelegate
                                 //self.btnStart.setTitle("Start", for: .normal)
                                 let rand = Double.random(in: 0...1)
                                 let prob = NSNumber(value: rand)
-                                //TODO: callback(result, prob);
-                                callback(result);
+                                callback(result, prob);
+                                //TODO: callback(result);
                                 
                             }
                         }
