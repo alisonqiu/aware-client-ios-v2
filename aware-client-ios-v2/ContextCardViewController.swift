@@ -366,9 +366,9 @@ class ContextCardViewController: UIViewController {
             self.contextCards.append(speakerCard)
             self.mainStackView.addArrangedSubview(speakerCard)
             
-            //TODO: double_rms to uncertainty
+
             let rmsCard = ScatterChartCard(frame: CGRect(x:0,y:0, width: self.view.frame.width, height:300))
-            rmsCard.setTodaysChart(sensor: sensor, yKeys: ["uncertainty"])
+            rmsCard.setTodaysChart(sensor: sensor, yKeys: ["double_prob"])
             rmsCard.titleLabel.text = "Ambient Noise | uncertainty"
             self.contextCards.append(rmsCard)
             self.mainStackView.addArrangedSubview(rmsCard)

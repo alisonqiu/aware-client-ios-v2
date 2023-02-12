@@ -215,7 +215,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if let ambientNoise = manager.getSensor(SENSOR_AMBIENT_NOISE) as? AmbientNoise {
             ambientNoise.setSensorEventHandler { (sensor, data) in
                 if let data = data {
-                    let prob = data["double_rms"] as! Double
+                    let prob = data["double_prob"] as! Double
                             if prob < 0.5 {
                                     print("prob < 0.5")
                                     self.setSurvey()
